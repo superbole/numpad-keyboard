@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Numpad Softkeyboard</string>
+    <string name="ime_name">NumpadKey</string>
+<string name="app_desc">simple, responsive, and low memory footprint of multitap numeric keyboard</string>
+</resources>
