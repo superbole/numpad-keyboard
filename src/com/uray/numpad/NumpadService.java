@@ -6,11 +6,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
-import android.inputmethodservice.KeyboardView;
 import android.os.*;
 
 public class NumpadService extends InputMethodService 
-                           implements KeyboardView.OnKeyboardActionListener
+                           implements NumpadView.OnKeyboardActionListener
 {
 	private Keyboard keyboard;
 	private NumpadView keyview;
@@ -69,9 +68,7 @@ public class NumpadService extends InputMethodService
     	LayoutInflater inflater = this.getLayoutInflater();
         this.keyview = (NumpadView)inflater.inflate(R.layout.main, null);
         this.keyview.setOnKeyboardActionListener(this);
-        this.keyview.setKeyboard(this.keyboard);
-        this.keyview.setPreviewEnabled(false);
-        this.keyview.setProximityCorrectionEnabled(false);        
+        this.keyview.setKeyboard(this.keyboard);     
         this.vibrator = (Vibrator)this.keyview.getContext().getSystemService(VIBRATOR_SERVICE);
         return this.keyview;
     }
@@ -227,9 +224,5 @@ public class NumpadService extends InputMethodService
     	this.vibrator.vibrate(22);
     }
     
-	public void onText(CharSequence text) { }
-    public void swipeRight() { }
-    public void swipeLeft() { }
-    public void swipeDown() { }
-    public void swipeUp() { }    
+	public void onText(CharSequence text) { } 
 }
