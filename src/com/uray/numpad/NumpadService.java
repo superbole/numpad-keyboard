@@ -1,56 +1,80 @@
 package com.uray.numpad;
 
-import android.view.LayoutInflater;
-import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
-import android.os.*;
 
 public class NumpadService extends InputMethodService 
-                           implements NumpadLogic.LogicListener
-{
-	private class NumpadServiceHandler extends Handler
-	{
-		private InputConnection connection;
-		public NumpadServiceHandler(InputConnection connection)
-		{
-			this.connection = connection;
-		}
-        @Override public void handleMessage(Message msg) 
-        {
-        	String text = (String)msg.obj;
-            if(msg.arg1 == NumpadLogic.inputModeReplaceLast)
-            {
-            	this.connection.deleteSurroundingText(1, 0);
-            }
-            this.connection.commitText(text, text.length());
-        }
-	}
-	
+                           implements NumpadLogic.TextInputListener
+{	
 	private NumpadView keyview;
+	private NumpadRenderer keyRenderer;
 	private NumpadLogic logic;
-	private NumpadServiceHandler handler;
+	private NumpadLayout layout;
+	private InputConnection connection;
+	int selectionStart;
+	int selectionEnd;
 
 	@Override public void onInitializeInterface() 
   	{
-		this.handler = new NumpadServiceHandler(this.getCurrentInputConnection());
-		this.logic   = new NumpadLogic(this);
+		this.logic       = new NumpadLogic(this);
+		this.keyRenderer = new NumpadSimpleRenderer();
+		this.layout      = new NumpadPortraitLayout();
+		
+		this.keyview     = new NumpadView(this);
+      	this.keyview.setTouchListener(this.logic);
+      	this.keyview.setRenderer(this.keyRenderer);
+      	this.keyview.setKeyLayout(this.layout);
+      	this.keyview.setClickable(true);
+      	this.keyview.setFocusable(true);
+      	this.keyview.setFocusableInTouchMode(true);
+      	this.keyview.setHapticFeedbackEnabled(false);
+      	this.keyview.setVisibility(ViewGroup.VISIBLE);
+      	this.keyview.setWillNotDraw(false);
+
+		this.setInputView(this.keyview);
   	}
 	
-	@Override public View onCreateInputView() 
+	@Override public void onStartInput(EditorInfo attribute, boolean restarting) 
 	{
-		LayoutInflater inflater = this.getLayoutInflater();
-		this.keyview = (NumpadView)inflater.inflate(R.layout.main, null);      	
-      	this.keyview.setTouchListener(this.logic);
-      	return this.keyview;
+		super.onStartInput(attribute, restarting);
+		this.connection = this.getCurrentInputConnection();
 	}
 	
-	@Override public void onInput(String input, int mode) 
+	@Override public void onInsertInput(String text) 
 	{
-		Message msg = this.handler.obtainMessage();
-		msg.obj  = input;
-		msg.arg1 = mode;
-		this.handler.sendMessage(msg);		
+        this.connection.commitText(text, text.length());
+	}
+
+	@Override public void onReplaceInput(String text)
+	{
+		this.connection.deleteSurroundingText(1, 0);
+		this.connection.commitText(text, text.length());
+	}
+
+	@Override public void onDeleteInput()
+	{
+		if(this.selectionStart != this.selectionEnd)
+		{
+			this.connection.setSelection(this.selectionStart, this.selectionStart);
+			this.connection.deleteSurroundingText(0, this.selectionEnd - this.selectionStart);
+		}
+		else
+		{
+			this.connection.deleteSurroundingText(1, 0);
+		}				
+	}
+	
+	@Override public void onUpdateSelection(int oldSelStart, int oldSelEnd,
+											int newSelStart, int newSelEnd,
+											int candidatesStart, int candidatesEnd) 
+	{
+		super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
+								candidatesStart, candidatesEnd);
+	
+		this.selectionStart = newSelStart;
+		this.selectionEnd   = newSelEnd;
 	}
 	
 //	private Vibrator vibrator;
