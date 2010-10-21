@@ -3,15 +3,16 @@ package com.uray.numpad;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 
 public class NumpadView extends ViewGroup
-						implements NumpadLayout.NumpadLayoutListener
 {
 	private TouchListener listener;
 	private NumpadLayout layout;
 	private NumpadRenderer renderer;
 	private boolean isCanvasNeedRedraw;
+	private NumpadKey lastKeyDown;
 	
 	public interface TouchListener
 	{
@@ -22,6 +23,12 @@ public class NumpadView extends ViewGroup
 	public NumpadView(Context context) 
 	{
 		super(context);
+		this.setClickable(true);
+      	this.setFocusable(true);
+      	this.setFocusableInTouchMode(true);
+      	this.setHapticFeedbackEnabled(false);
+      	this.setVisibility(ViewGroup.VISIBLE);
+      	this.setWillNotDraw(false);
 	}  
 	
 	void setTouchListener(TouchListener listener)
@@ -32,9 +39,16 @@ public class NumpadView extends ViewGroup
 	void setKeyLayout(NumpadLayout layout)
 	{
 		this.layout = layout;
-		this.layout.setParentView(this);
 		this.isCanvasNeedRedraw = true;		
 		this.invalidate();
+		
+		for(int i=0 ; i<layout.countKey() ; i++)
+		{
+			NumpadKey key = layout.getKey(i);
+			this.addView(key,new ViewGroup.LayoutParams(key.getWidth(), key.getHeight()));	
+			this.bringChildToFront(key);
+			key.invalidate();
+		}
 	}
 	
 	@Override public void onSizeChanged(int w, int h, int oldw, int oldh) 
@@ -56,48 +70,59 @@ public class NumpadView extends ViewGroup
 	{
 		if(this.isCanvasNeedRedraw)
 		{
-			this.renderer.render(canvas, this.layout);
+			this.renderer.renderLayout(canvas, this.layout);
 			this.isCanvasNeedRedraw = false;
 		}
+		else
+		{
+			this.renderer.redrawLayout(canvas);
+		}
+	}
+	
+	@Override public void onLayout(boolean changed, int left, int top, int right, int bottom)
+	{
+		this.layout.layoutKeys(left, top, right, bottom);
 	}
 	
 	@Override public boolean onTouchEvent(MotionEvent me) 
 	{
-		NumpadKey key = this.layout.getKey(me.getX(), me.getY());
+		NumpadKey key = this.layout.getKey((int)me.getX(), (int)me.getY());		
 		if(key != null)
 		{
 			if(me.getAction() == MotionEvent.ACTION_UP)
 			{
-				this.listener.onKeyUp(key);
+				if(this.lastKeyDown != null)
+				{
+					this.lastKeyDown.setVisibility(View.INVISIBLE);
+					this.listener.onKeyUp(this.lastKeyDown);
+					this.lastKeyDown = null;
+				}
+				else
+				{
+					this.listener.onKeyUp(key);				
+				}
+				key.setVisibility(View.INVISIBLE);
 			}
 			else if(me.getAction() == MotionEvent.ACTION_DOWN)
 			{
-				this.listener.onKeyDown(key);
+				this.lastKeyDown = key;
+				key.setVisibility(View.VISIBLE);
+				this.listener.onKeyDown(key);				
 			}
 		}
 		return true;
 	}
 
-	@Override public void onLayoutChange(NumpadLayout layout)
-	{
-		this.isCanvasNeedRedraw = true;		
-	}
-
 	public void setRenderer(NumpadRenderer renderer)
 	{
 		this.renderer = renderer;
+		this.isCanvasNeedRedraw = true;		
+		this.invalidate();
 	}
 
 	public NumpadRenderer getRenderer()
 	{
 		return renderer;
-	}
-
-	@Override
-	protected void onLayout(boolean arg0, int arg1, int arg2, int arg3, int arg4)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 	
 //	public interface OnKeyboardActionListener 
