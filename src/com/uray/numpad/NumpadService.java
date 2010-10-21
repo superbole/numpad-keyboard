@@ -1,6 +1,8 @@
 package com.uray.numpad;
 
-import android.view.ViewGroup;
+import com.uray.numpad.impl.NumpadDefaultRenderer;
+import com.uray.numpad.impl.NumpadPortraitLayout;
+
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
@@ -19,19 +21,13 @@ public class NumpadService extends InputMethodService
 	@Override public void onInitializeInterface() 
   	{
 		this.logic       = new NumpadLogic(this);
-		this.keyRenderer = new NumpadSimpleRenderer();
-		this.layout      = new NumpadPortraitLayout();
-		
+		this.keyRenderer = new NumpadDefaultRenderer();				
 		this.keyview     = new NumpadView(this);
       	this.keyview.setTouchListener(this.logic);
-      	this.keyview.setRenderer(this.keyRenderer);
+      	this.keyview.setRenderer(this.keyRenderer);	
+      	
+      	this.layout = new NumpadPortraitLayout(this.keyview,this.keyRenderer);
       	this.keyview.setKeyLayout(this.layout);
-      	this.keyview.setClickable(true);
-      	this.keyview.setFocusable(true);
-      	this.keyview.setFocusableInTouchMode(true);
-      	this.keyview.setHapticFeedbackEnabled(false);
-      	this.keyview.setVisibility(ViewGroup.VISIBLE);
-      	this.keyview.setWillNotDraw(false);
 
 		this.setInputView(this.keyview);
   	}
