@@ -17,19 +17,17 @@ public abstract class NumpadLayout
 	public abstract NumpadKey getKey(int x, int y);
 	public abstract void setConstraint(int w, int h);
 	public abstract int countKey();
-	public abstract int getMinWidth();
-	public abstract int getMinHeight();
-	public abstract int getHeight();
-	public abstract int getWidth();
+	public int width;
+	public int height;
 	public void layoutKeys(int l, int t,int r,int b)
 	{
 		for(int i=0 ; i<this.countKey() ; i++)
 		{
 			NumpadKey key = this.getKey(i);
-			int px = (int)(key.getKeyPosX()*(float)this.getWidth());
-			int py = (int)(key.getKeyPosY()*(float)this.getHeight());
-			int pr = px + (int)(key.getKeyWidth()*(float)this.getWidth());
-			int pb = py + (int)(key.getKeyHeight()*(float)this.getHeight());
+			int px = (int)(key.posX*(float)this.width);
+			int py = (int)(key.posY*(float)this.height);
+			int pr = px + (int)(key.keyWidth*(float)this.width);
+			int pb = py + (int)(key.keyHeight*(float)this.height);
 			key.layout(px, py, pr, pb);
 		}
 	}
