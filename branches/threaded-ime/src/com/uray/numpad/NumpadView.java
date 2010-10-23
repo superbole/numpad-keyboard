@@ -1,18 +1,19 @@
 package com.uray.numpad;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 
 public class NumpadView extends ViewGroup
 {
 	private TouchListener listener;
-	private NumpadLayout layout;
-	private NumpadRenderer renderer;
+	private NumpadLayout layout;	
 	private boolean isCanvasNeedRedraw;
-	private NumpadKey lastKeyDown;
+	private Bitmap buffer;
+	private Canvas bufferCanvas;
+	public NumpadRenderer renderer;
 	
 	public interface TouchListener
 	{
@@ -58,25 +59,29 @@ public class NumpadView extends ViewGroup
 	
 	@Override public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) 
 	{
-		int width = this.layout.getMinWidth();
+		int width = this.layout.width;
 		if (MeasureSpec.getSize(widthMeasureSpec) < width + 10) 
 		{
 			width = MeasureSpec.getSize(widthMeasureSpec);
 		}
-		setMeasuredDimension(width, this.layout.getMinHeight());
+		setMeasuredDimension(width, this.layout.height);
 	}
 	
 	@Override public void onDraw(Canvas canvas) 
 	{
 		if(this.isCanvasNeedRedraw)
 		{
-			this.renderer.renderLayout(canvas, this.layout);
+			if( (this.buffer == null) || 
+				(canvas.getWidth() != this.buffer.getWidth() ) ||
+				(canvas.getHeight()!= this.buffer.getHeight()) )
+			{
+				this.buffer = Bitmap.createBitmap(this.getWidth(),this.getHeight(),Bitmap.Config.ARGB_8888);
+				this.bufferCanvas = new Canvas(this.buffer);
+			}
+			this.renderer.renderLayout(this.bufferCanvas, this.layout);
 			this.isCanvasNeedRedraw = false;
 		}
-		else
-		{
-			this.renderer.redrawLayout(canvas);
-		}
+		canvas.drawBitmap(this.buffer, 0, 0, null);
 	}
 	
 	@Override public void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -91,22 +96,10 @@ public class NumpadView extends ViewGroup
 		{
 			if(me.getAction() == MotionEvent.ACTION_UP)
 			{
-				if(this.lastKeyDown != null)
-				{
-					this.lastKeyDown.setVisibility(View.INVISIBLE);
-					this.listener.onKeyUp(this.lastKeyDown);
-					this.lastKeyDown = null;
-				}
-				else
-				{
-					this.listener.onKeyUp(key);				
-				}
-				key.setVisibility(View.INVISIBLE);
+				this.listener.onKeyUp(key);				
 			}
 			else if(me.getAction() == MotionEvent.ACTION_DOWN)
 			{
-				this.lastKeyDown = key;
-				key.setVisibility(View.VISIBLE);
 				this.listener.onKeyDown(key);				
 			}
 		}
@@ -118,11 +111,6 @@ public class NumpadView extends ViewGroup
 		this.renderer = renderer;
 		this.isCanvasNeedRedraw = true;		
 		this.invalidate();
-	}
-
-	public NumpadRenderer getRenderer()
-	{
-		return renderer;
 	}
 	
 //	public interface OnKeyboardActionListener 
