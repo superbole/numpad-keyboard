@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 public class NumpadView extends ViewGroup
 {
-	private TouchListener listener;
+	public TouchListener touchListener;
 	private NumpadLayout layout;	
 	private boolean isCanvasNeedRedraw;
 	private Bitmap buffer;
@@ -32,20 +32,14 @@ public class NumpadView extends ViewGroup
       	this.setWillNotDraw(false);
 	}  
 	
-	void setTouchListener(TouchListener listener)
-	{
-		this.listener = listener;
-	}
-	
 	void setKeyLayout(NumpadLayout layout)
 	{
 		this.layout = layout;
 		this.isCanvasNeedRedraw = true;		
 		this.invalidate();
 		
-		for(int i=0 ; i<layout.countKey() ; i++)
+		for(NumpadKey key : layout.keys)
 		{
-			NumpadKey key = layout.getKey(i);
 			this.addView(key,new ViewGroup.LayoutParams(key.getWidth(), key.getHeight()));	
 			this.bringChildToFront(key);
 			key.invalidate();
@@ -96,11 +90,11 @@ public class NumpadView extends ViewGroup
 		{
 			if(me.getAction() == MotionEvent.ACTION_UP)
 			{
-				this.listener.onKeyUp(key);				
+				this.touchListener.onKeyUp(key);				
 			}
 			else if(me.getAction() == MotionEvent.ACTION_DOWN)
 			{
-				this.listener.onKeyDown(key);				
+				this.touchListener.onKeyDown(key);				
 			}
 		}
 		return true;

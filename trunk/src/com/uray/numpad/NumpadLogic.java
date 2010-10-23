@@ -18,8 +18,7 @@ public class NumpadLogic implements TouchListener
 		void onKeyCancel();
 		void onKeyReturn();
 		void onVibrate(int ms);
-	}
-    Handler handler = new Handler();
+	}    
     private class LongPressHandler implements Runnable
     {
     	private NumpadLogic logic;
@@ -31,57 +30,56 @@ public class NumpadLogic implements TouchListener
 		{
 			if( logic.keyLastDown != null )
 			{
-				logic.onLongPressKey(logic.keyLastDown);
+				logic.keyLastLongPress = logic.keyLastDown;
+				logic.sendKeyValue(logic.keyLastDown, logic.keyLastDown.keymap.longPressMap, false);
 			}
 		}    	
     }
     private class DelRepeatHandler implements Runnable
     {
-    	NumpadLogic logic;
-    	NumpadKey key;    	
+    	private NumpadLogic logic; 	
     	DelRepeatHandler(NumpadLogic logic)
     	{
     		this.logic = logic;
     	}
 		@Override public void run()
 		{
-			if(logic.keyLastDown == this.key)
+			if(logic.repeatDel == true)
 			{
 				logic.listener.onDeleteInput();
-				logic.handler.postDelayed(this, logic.tapRepeatDelay);	
-				logic.tapRepeatDelay -= 25;
-				if(logic.tapRepeatDelay < 75)
+				logic.handler.postDelayed(this, logic.tapRepeatDelay);					
+				if(logic.tapRepeatDelay > 80)
 				{
-					logic.tapRepeatDelay = 75;
+					logic.tapRepeatDelay -= 20;
 				}
 			}
 		}    	
     }
 	
-	private TextInputListener listener;
-	private boolean shiftState = false;
-	private boolean shiftLock = false;
-	private boolean altState = false;
-	private boolean numlockState = false;
-	private long keyLastUpTime[];
-	private int keyTapIndex[];
-	private NumpadKey keyLastDown;
-	private NumpadKey keyLastUp;
-	private NumpadKey keyLastLongPress;
-	private NumpadKey shiftKey;
-	private LongPressHandler longPressHandler;
-	private DelRepeatHandler delRepeatHandler;
-	private static final long longPressTime = 500;
-	private static final long tapTimeoutTime = 750;
-	private long tapRepeatDelay = 200;
+	public TextInputListener listener;
+	public boolean shiftState = false;
+	public boolean shiftLock = false;
+	public boolean altState = false;
+	public boolean numlockState = false;
+	public boolean repeatDel = false;
+	public long keyLastUpTime;
+	public int keyTapIndex;
+	public NumpadKey keyLastDown;
+	public NumpadKey keyLastUp;
+	public NumpadKey keyLastLongPress;
+	public NumpadKey shiftKey;
+	public LongPressHandler longPressHandler;
+	public DelRepeatHandler delRepeatHandler;
+	public static final long longPressTime = 500;
+	public static final long tapTimeoutTime = 750;
+	public long tapRepeatDelay = 200;
+	public Handler handler = new Handler();	
 	
-	NumpadLogic(TextInputListener listener,NumpadLayout layout)
+	NumpadLogic(TextInputListener listener)
 	{
 		this.listener = listener;
 		this.longPressHandler = new LongPressHandler(this);
 		this.delRepeatHandler = new DelRepeatHandler(this);
-		this.keyLastUpTime    = new long[layout.countKey()];
-		this.keyTapIndex      = new int[layout.countKey()];
 	}
 	
 	@Override public void onKeyDown(NumpadKey key) 
@@ -90,8 +88,8 @@ public class NumpadLogic implements TouchListener
 		this.keyLastDown = key;
 		if(key.keymap.defaultTapMap[0].keyCode == NumpadKeymap.keyCodeDel)
 		{
-			this.delRepeatHandler.key = key;
-			this.tapRepeatDelay = 200;
+			this.repeatDel = true;
+			this.tapRepeatDelay = 240;
 			this.handler.postDelayed(this.delRepeatHandler, this.tapRepeatDelay);
 		}
 		else
@@ -104,6 +102,7 @@ public class NumpadLogic implements TouchListener
 	{
 		key = this.keyLastDown;
 		this.keyLastDown = null;
+		this.repeatDel = false;
 		this.handler.removeCallbacks(this.longPressHandler);		
 		long currentTime = SystemClock.elapsedRealtime();
 		if(this.keyLastLongPress == key)
@@ -131,36 +130,33 @@ public class NumpadLogic implements TouchListener
 				boolean replace = false;		
 				if(this.keyLastUp == key)
 				{
-					if(currentTime - this.keyLastUpTime[key.id] < NumpadLogic.tapTimeoutTime)
+					if(currentTime - this.keyLastUpTime < NumpadLogic.tapTimeoutTime)
 					{
-						this.keyTapIndex[key.id]++;
-						if(this.keyTapIndex[key.id] >= tapMap.length)
+						if(this.keyTapIndex < tapMap.length-1)
 						{
-							this.keyTapIndex[key.id] = 0;
+							this.keyTapIndex++;
+						}
+						else
+						{
+							this.keyTapIndex = 0;
 						}
 						replace = true;
 					}
 					else
 					{
-						this.keyTapIndex[key.id] = 0;
+						this.keyTapIndex = 0;
 					}
 				}
 				else if(this.keyLastUp != null)
 				{
-					this.keyTapIndex[this.keyLastUp.id] = 0;
+					this.keyTapIndex = 0;
 				}
-				this.sendKeyValue(key, tapMap[this.keyTapIndex[key.id]], replace);
+				this.sendKeyValue(key, tapMap[this.keyTapIndex], replace);
 			}									
 		}
 		
-		this.keyLastUpTime[key.id] = currentTime;
+		this.keyLastUpTime = currentTime;
 		this.keyLastUp = key;				
-	}
-	
-	public void onLongPressKey(NumpadKey key)
-	{
-		this.keyLastLongPress = key;
-		this.sendKeyValue(key, key.keymap.longPressMap, false);
 	}
 	
 	public void sendKeyValue(NumpadKey key,NumpadKeyValue value,boolean replace)
@@ -206,7 +202,7 @@ public class NumpadLogic implements TouchListener
 		}
 		else if(keyCode == NumpadKeymap.keyCodeTapEnd)
 		{
-			this.keyTapIndex[this.keyLastUp.id] = 0;
+			this.keyTapIndex = 0;
 			this.listener.onVibrate(30);
 		}
 		else if(keyCode == NumpadKeymap.keyCodeShift)

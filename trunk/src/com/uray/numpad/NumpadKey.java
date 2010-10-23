@@ -16,8 +16,8 @@ public class NumpadKey extends View
 	public final static int edgeTop = 2;
 	public final static int edgeBottom = 4;
 	public final static int edgeRight = 8;
-	public final int id;
 	
+	public final int id;	
 	public float posX;
 	public float posY;
 	public float keyWidth;
@@ -26,7 +26,6 @@ public class NumpadKey extends View
 	public boolean isToggleKey = false;
 	public NumpadKeymap keymap;		
 	public NumpadLayout keyLayout;
-	//public ArrayList<NumpadGlyph> glyph = new ArrayList<NumpadGlyph>();
 	
 	public NumpadKey(int id,Context context,NumpadRenderer renderer,NumpadLayout keyLayout,
 			        float x,float y,float w, float h)
