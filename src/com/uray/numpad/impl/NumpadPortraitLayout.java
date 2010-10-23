@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 public class NumpadPortraitLayout extends NumpadLayout
 {
-	NumpadKey[] keys = new NumpadKey[15];	
 	private int colPosPx[] = new int[5];
 	private int rowPosPx[] = new int[5];
 	private float colPos[] = new float[5];
@@ -20,6 +19,7 @@ public class NumpadPortraitLayout extends NumpadLayout
 	public NumpadPortraitLayout(ViewGroup parentView,NumpadRenderer renderer)
 	{
 		super(parentView,renderer);
+		
 		this.height = 240;
 		this.width = 320;
 		this.colPos[0] = 0.0000f;
@@ -45,6 +45,8 @@ public class NumpadPortraitLayout extends NumpadLayout
 		NumpadGlyphReturn returnSymbol = new NumpadGlyphReturn();
 		NumpadGlyphClose closeSymbol   = new NumpadGlyphClose();
 		NumpadGlyphDel delSymbol       = new NumpadGlyphDel();
+		
+		this.keys = new NumpadKey[15];	
 		
 		//---------------------------------------------- KEY[0] , numpad 0
 		this.keys[0] = new NumpadKey(0,parentView.getContext(),renderer,this,
@@ -380,20 +382,6 @@ public class NumpadPortraitLayout extends NumpadLayout
 			ny++;
 		}
 		return this.keys[this.keyPosMap[nx][ny]];
-	}
-
-	@Override public NumpadKey getKey(int index)
-	{
-		if(index >=0 && index < this.keys.length)
-		{
-			return this.keys[index];
-		}
-		return null;
-	}
-
-	@Override public int countKey()
-	{
-		return this.keys.length;
 	}
 
 	@Override public void setConstraint(int w, int h)

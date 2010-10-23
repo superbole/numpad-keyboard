@@ -76,9 +76,8 @@ public class NumpadDefaultRenderer implements NumpadRenderer
 	{		
 		int w = layout.width;
 		int h = layout.height;
-		for(int i=0 ; i<layout.countKey() ; i++)
+		for(NumpadKey key : layout.keys)
 		{						
-			NumpadKey key = layout.getKey(i);
 			if(key != null)
 			{
 				float posx = key.posX     * w;

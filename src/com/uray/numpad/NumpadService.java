@@ -19,17 +19,23 @@ public class NumpadService extends InputMethodService
 	private Vibrator vibrator;
 	private int selectionStart;
 	private int selectionEnd;
+	
+	@Override public void onCreate()
+	{
+		this.keyRenderer = new NumpadDefaultRenderer();		
+		this.logic       = new NumpadLogic(this);	
+		super.onCreate();
+	}
 
 	@Override public void onInitializeInterface() 
   	{		
-		this.keyRenderer = new NumpadDefaultRenderer();		
+		this.setCandidatesViewShown(false);
 		this.keyview     = new NumpadView(this);
       	this.keyview.setRenderer(this.keyRenderer);	
       	
       	this.layout = new NumpadPortraitLayout(this.keyview,this.keyRenderer);
-      	this.keyview.setKeyLayout(this.layout);
-      	this.logic  = new NumpadLogic(this,this.layout);
-      	this.keyview.setTouchListener(this.logic);	
+      	this.keyview.setKeyLayout(this.layout);      	
+      	this.keyview.touchListener = this.logic;		
 		this.setInputView(this.keyview);
 		this.vibrator = (Vibrator)this.keyview.getContext().getSystemService(VIBRATOR_SERVICE);
   	}

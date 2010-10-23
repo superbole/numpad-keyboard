@@ -13,17 +13,15 @@ public abstract class NumpadLayout
 		this.parentView = parentView;
 		this.renderer = renderer;
 	}
-	public abstract NumpadKey getKey(int index);
 	public abstract NumpadKey getKey(int x, int y);
 	public abstract void setConstraint(int w, int h);
-	public abstract int countKey();
 	public int width;
 	public int height;
+	public NumpadKey[] keys;
 	public void layoutKeys(int l, int t,int r,int b)
 	{
-		for(int i=0 ; i<this.countKey() ; i++)
+		for(NumpadKey key : this.keys)
 		{
-			NumpadKey key = this.getKey(i);
 			int px = (int)(key.posX*(float)this.width);
 			int py = (int)(key.posY*(float)this.height);
 			int pr = px + (int)(key.keyWidth*(float)this.width);
