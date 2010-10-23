@@ -145,7 +145,7 @@ public class NumpadPortraitLayout extends NumpadLayout
 		keymap4.altTapMap        = new NumpadKeyValue[3];		
 		keymap4.shiftTapMap	     = new NumpadKeyValue[3];
 		keymap4.longPressMap     = new NumpadKeyValue(glyphText,0.050f,0.700f,'4',NumpadKeymap.keyCodeChars);		
-		keymap4.altTapMap[0]     = new NumpadKeyValue(glyphText,0.500f,0.900f,'\'',NumpadKeymap.keyCodeChars);
+		keymap4.altTapMap[0]     = new NumpadKeyValue(glyphText,0.500f,0.900f,'\\',NumpadKeymap.keyCodeChars);
 		keymap4.altTapMap[1]     = new NumpadKeyValue(glyphText,0.650f,0.900f,'<',NumpadKeymap.keyCodeChars);		
 		keymap4.altTapMap[2]     = new NumpadKeyValue(glyphText,0.800f,0.900f,';',NumpadKeymap.keyCodeChars);			
 		keymap4.shiftTapMap[0]   = new NumpadKeyValue(glyphText,0.500f,0.375f,'G',NumpadKeymap.keyCodeChars);		
@@ -292,7 +292,7 @@ public class NumpadPortraitLayout extends NumpadLayout
 		keymap10.altTapMap[2]     = new NumpadKeyValue(glyphText,0.800f,0.900f,'©',NumpadKeymap.keyCodeChars);			
 		keymap10.defaultTapMap[0] = new NumpadKeyValue(null     ,0.60f,0.375f,'?' ,NumpadKeymap.keyCodeChars);		
 		keymap10.defaultTapMap[1] = new NumpadKeyValue(null     ,0.75f,0.375f,'!' ,NumpadKeymap.keyCodeChars);		
-		keymap10.defaultTapMap[2] = new NumpadKeyValue(null     ,0.85f,0.375f,'`' ,NumpadKeymap.keyCodeChars);	
+		keymap10.defaultTapMap[2] = new NumpadKeyValue(null     ,0.85f,0.375f,'-' ,NumpadKeymap.keyCodeChars);	
 		keymap10.shiftTapMap[0]   = new NumpadKeyValue(glyphText,0.500f,0.375f,'?' ,NumpadKeymap.keyCodeChars);		
 		keymap10.shiftTapMap[1]   = new NumpadKeyValue(glyphText,0.700f,0.375f,'!' ,NumpadKeymap.keyCodeChars);		
 		keymap10.shiftTapMap[2]   = new NumpadKeyValue(glyphText,0.775f,0.375f,'-' ,NumpadKeymap.keyCodeChars);			
